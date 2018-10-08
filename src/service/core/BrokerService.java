@@ -15,5 +15,5 @@ import service.registry.Service;
 @WebService
 public interface BrokerService extends Service {
 //	@WebMethod	public List<Quotation> getQuotations(ClientInfo info);
-	@WebMethod	public Quotation[] getQuotations(ClientInfo info);
+	@WebMethod	public Quotation[] getQuotations(ClientInfo info) throws Exception;
 }

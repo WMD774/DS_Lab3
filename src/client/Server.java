@@ -11,19 +11,26 @@ import service.core.ClientInfo;
 import service.core.Quotation;
 import service.dodgydrivers.DDQService;
 import service.girlpower.GPQService;
-import service.registry.ServiceRegistry;
+//import service.registry.ServiceRegistry;
 
 public class Server {
 //	public static final String BROKER_SERVICE = "bs-BrokerService";  
-	public static final String GIRL_POWER_SERVICE = "qs-GirlPowerService";  
-	public static final String AULD_FELLAS_SERVICE = "qs-AuldFellasService";  
-	public static final String DODGY_DRIVERS_SERVICE = "qs-DodgyDriversService";
+//	public static final String GIRL_POWER_SERVICE = "qs-GirlPowerService";  
+//	public static final String AULD_FELLAS_SERVICE = "qs-AuldFellasService";  
+//	public static final String DODGY_DRIVERS_SERVICE = "qs-DodgyDriversService";
+	public static final String AFQAddress = "http://localhost:9001/StockService/GetStockQuote";
+	public static final String DDQAddress = "http://localhost:9002/StockService/GetStockQuote";
+	public static final String GPQAddress = "http://localhost:9003/StockService/GetStockQuote";
 	
 	static {
+		Endpoint.publish(AFQAddress, new AFQService());
+		Endpoint.publish(DDQAddress, new DDQService());
+		Endpoint.publish(GPQAddress, new GPQService());		
+		
 		// Create the services and bind them to the registry.
-		ServiceRegistry.bind(GIRL_POWER_SERVICE, new GPQService());
-		ServiceRegistry.bind(AULD_FELLAS_SERVICE, new AFQService());
-		ServiceRegistry.bind(DODGY_DRIVERS_SERVICE, new DDQService());
+//		ServiceRegistry.bind(GIRL_POWER_SERVICE, new GPQService());
+//		ServiceRegistry.bind(AULD_FELLAS_SERVICE, new AFQService());
+//		ServiceRegistry.bind(DODGY_DRIVERS_SERVICE, new DDQService());
 //		ServiceRegistry.bind(BROKER_SERVICE, new LocalBrokerService());
 	}
 	
@@ -40,7 +47,9 @@ public class Server {
 	public static void main(String[] args) {
 //		BrokerService brokerService = ServiceRegistry.lookup(BROKER_SERVICE, BrokerService.class);
 		Endpoint.publish("http://localhost:9000/StockService/GetStockQuote", new LocalBrokerService());
-		
+//		Endpoint.publish("http://localhost:9000/StockService/GetStockQuote", new AFQService());
+//		Endpoint.publish("http://localhost:9000/StockService/GetStockQuote", new DDQService());
+//		Endpoint.publish("http://localhost:9000/StockService/GetStockQuote", new GPQService());
 //		//Create the broker and run the test data
 //		for (ClientInfo info : clients) {
 //			displayProfile(info);

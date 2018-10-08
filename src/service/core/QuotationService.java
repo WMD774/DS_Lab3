@@ -11,7 +11,7 @@ import service.registry.Service;
  * @author Rem
  *
  */
-
+@WebService
 public interface QuotationService extends Service {
-	public Quotation generateQuotation(ClientInfo info);
+	@WebMethod public Quotation generateQuotation(ClientInfo info);
 }

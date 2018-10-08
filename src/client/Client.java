@@ -14,7 +14,7 @@ import service.core.ClientInfo;
 import service.core.Quotation;
 import service.dodgydrivers.DDQService;
 import service.girlpower.GPQService;
-import service.registry.ServiceRegistry;
+//import service.registry.ServiceRegistry;
 
 public class Client {
 //	public static final String BROKER_SERVICE = "bs-BrokerService";  

@@ -1,5 +1,10 @@
 package service.girlpower;
 
+import javax.jws.WebService;
+import javax.jws.soap.SOAPBinding;
+import javax.jws.soap.SOAPBinding.Style;
+import javax.jws.soap.SOAPBinding.Use;
+
 import service.core.AbstractQuotationService;
 import service.core.ClientInfo;
 import service.core.Quotation;
@@ -11,6 +16,14 @@ import service.core.QuotationService;
  * @author Rem
  *
  */
+
+@WebService(
+		serviceName="BrokerService",
+		targetNamespace="http://core.service/",
+		portName="BrokerServicePort"
+)
+@SOAPBinding(style = Style.DOCUMENT, use=Use.LITERAL)
+
 public class GPQService extends AbstractQuotationService implements QuotationService {
 	// All references are to be prefixed with an DD (e.g. DD001000)
 	public static final String PREFIX = "GP";
