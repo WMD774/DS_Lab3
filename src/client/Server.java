@@ -28,15 +28,15 @@ public class Server {
 	static {
 		AFQService afq = new AFQService();
 		Endpoint.publish(AFQAddress, afq);
-		afq.publish();
+		//afq.publish();
 		
 		DDQService ddq = new DDQService();
 		Endpoint.publish(DDQAddress, ddq);
-		ddq.publish();
+		//ddq.publish();
 		
 		GPQService gpq = new GPQService();
 		Endpoint.publish(GPQAddress, gpq);
-		gpq.publish();
+		//gpq.publish();
 		
 //		Endpoint.publish(AFQAddress, new AFQService());
 //		Endpoint.publish(DDQAddress, new DDQService());
@@ -84,7 +84,7 @@ public class Server {
 //			System.out.println("\n");
 //		}
 		
-		lbs.publish();
+		//lbs.publish();
 	}
 	
 //	/**

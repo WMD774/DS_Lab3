@@ -48,11 +48,7 @@ private static UDDIClerk clerk = null;
 			e.printStackTrace();
 		}
 		//Step.1 Finish
-	}
-	
-	// Step.4 Begin
-	// publish the service to jUDDI
-	public void publish() {
+		
 		try {
 			String myBusKey = WebServices.WebServicesHelper.createBusiness("GPQService", clerk);
 
@@ -71,7 +67,29 @@ private static UDDIClerk clerk = null;
 			e.printStackTrace();
 		}
 	}
-	// Step.4 Finish
+	
+//	// Step.4 Begin
+//	// publish the service to jUDDI
+//	public void publish() {
+//		try {
+//			String myBusKey = WebServices.WebServicesHelper.createBusiness("GPQService", clerk);
+//
+//			BusinessService myService = WebServices.WebServicesHelper.createWSDLService("GPQService", myBusKey, LocalBrokerService.GPQAddress);
+//			BusinessService svc = clerk.register(myService);
+//			if (svc == null) {
+//				System.out.println("Save failed!");
+//				System.exit(1);
+//			}
+//
+//			String myServKey = svc.getServiceKey();
+//
+//			clerk.discardAuthToken();
+//
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//	}
+//	// Step.4 Finish
 	
 	/**
 	 * Quote generation:

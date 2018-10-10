@@ -66,30 +66,48 @@ public class LocalBrokerService implements BrokerService {
 			e.printStackTrace();
 		}
 		//Step.1 Finish
+		
+		try {
+			String myBusKey = WebServices.WebServicesHelper.createBusiness("LocalBrokerService", clerk);
+
+			BusinessService myService = WebServices.WebServicesHelper.createWSDLService("LocalBrokerService", myBusKey, Server.ENDPOINT_URL);
+			BusinessService svc = clerk.register(myService);
+			if (svc == null) {
+				System.out.println("Save failed!");
+				System.exit(1);
+			}
+
+			String myServKey = svc.getServiceKey();
+
+			clerk.discardAuthToken();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
-	// Step.4 Begin
-		// publish the service to jUDDI
-		public void publish() {
-			try {
-				String myBusKey = WebServices.WebServicesHelper.createBusiness("LocalBrokerService", clerk);
-
-				BusinessService myService = WebServices.WebServicesHelper.createWSDLService("LocalBrokerService", myBusKey, Server.ENDPOINT_URL);
-				BusinessService svc = clerk.register(myService);
-				if (svc == null) {
-					System.out.println("Save failed!");
-					System.exit(1);
-				}
-
-				String myServKey = svc.getServiceKey();
-
-				clerk.discardAuthToken();
-
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		// Step.4 Finish
+//	// Step.4 Begin
+//		// publish the service to jUDDI
+//		public void publish() {
+//			try {
+//				String myBusKey = WebServices.WebServicesHelper.createBusiness("LocalBrokerService", clerk);
+//
+//				BusinessService myService = WebServices.WebServicesHelper.createWSDLService("LocalBrokerService", myBusKey, Server.ENDPOINT_URL);
+//				BusinessService svc = clerk.register(myService);
+//				if (svc == null) {
+//					System.out.println("Save failed!");
+//					System.exit(1);
+//				}
+//
+//				String myServKey = svc.getServiceKey();
+//
+//				clerk.discardAuthToken();
+//
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
+//		}
+//		// Step.4 Finish
 
 	
 	//	public List<Quotation> getQuotations(ClientInfo info) {

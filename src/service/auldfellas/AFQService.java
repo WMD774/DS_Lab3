@@ -50,11 +50,7 @@ public class AFQService extends AbstractQuotationService implements QuotationSer
 			e.printStackTrace();
 		}
 		//Step.1 Finish
-	}
-	
-	// Step.4 Begin
-	// publish the service to jUDDI
-	public void publish() {
+		
 		try {
 			String myBusKey = WebServices.WebServicesHelper.createBusiness("AFQService", clerk);
 
@@ -73,7 +69,29 @@ public class AFQService extends AbstractQuotationService implements QuotationSer
 			e.printStackTrace();
 		}
 	}
-	// Step.4 Finish
+	
+//	// Step.4 Begin
+//	// publish the service to jUDDI
+//	public void publish() {
+//		try {
+//			String myBusKey = WebServices.WebServicesHelper.createBusiness("AFQService", clerk);
+//
+//			BusinessService myService = WebServices.WebServicesHelper.createWSDLService("AFQService", myBusKey, LocalBrokerService.AFQAddress);
+//			BusinessService svc = clerk.register(myService);
+//			if (svc == null) {
+//				System.out.println("Save failed!");
+//				System.exit(1);
+//			}
+//
+//			String myServKey = svc.getServiceKey();
+//
+//			clerk.discardAuthToken();
+//
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//	}
+//	// Step.4 Finish
 	
 	/**
 	 * Quote generation:

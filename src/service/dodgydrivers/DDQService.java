@@ -48,11 +48,7 @@ public class DDQService extends AbstractQuotationService implements QuotationSer
 			e.printStackTrace();
 		}
 		//Step.1 Finish
-	}
-	
-	// Step.4 Begin
-	// publish the service to jUDDI
-	public void publish() {
+		
 		try {
 			String myBusKey = WebServices.WebServicesHelper.createBusiness("DDQService", clerk);
 
@@ -71,7 +67,29 @@ public class DDQService extends AbstractQuotationService implements QuotationSer
 			e.printStackTrace();
 		}
 	}
-	// Step.4 Finish
+	
+//	// Step.4 Begin
+//	// publish the service to jUDDI
+//	public void publish() {
+//		try {
+//			String myBusKey = WebServices.WebServicesHelper.createBusiness("DDQService", clerk);
+//
+//			BusinessService myService = WebServices.WebServicesHelper.createWSDLService("DDQService", myBusKey, LocalBrokerService.DDQAddress);
+//			BusinessService svc = clerk.register(myService);
+//			if (svc == null) {
+//				System.out.println("Save failed!");
+//				System.exit(1);
+//			}
+//
+//			String myServKey = svc.getServiceKey();
+//
+//			clerk.discardAuthToken();
+//
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//	}
+//	// Step.4 Finish
 	
 	/**
 	 * Quote generation:
