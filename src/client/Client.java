@@ -7,6 +7,16 @@ import java.text.NumberFormat;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 
+import org.apache.juddi.v3.client.UDDIConstants;
+import org.apache.juddi.v3.client.config.UDDIClient;
+import org.apache.juddi.v3.client.transport.Transport;
+import org.uddi.api_v3.BindingTemplate;
+import org.uddi.api_v3.BusinessInfo;
+import org.uddi.api_v3.BusinessList;
+import org.uddi.api_v3.ServiceDetail;
+import org.uddi.v3_service.UDDIInquiryPortType;
+import org.uddi.v3_service.UDDISecurityPortType;
+
 import service.auldfellas.AFQService;
 import service.broker.LocalBrokerService;
 import service.core.BrokerService;
@@ -45,16 +55,70 @@ public class Client {
 	
 	
 	public static void main(String[] args) throws Exception {
+		// Step.1 Begin
+		// connect to the jUDDI server
+		UDDISecurityPortType security = null;
+		UDDIInquiryPortType inquiry = null;
+
+		try {
+			UDDIClient client = new UDDIClient("META-INF/simple-browse-uddi.xml");
+
+			Transport transport = client.getTransport("default");
+
+			security = transport.getUDDISecurityService();
+			inquiry = transport.getUDDIInquiryService();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		// Step.1 Finish
+		
+		// Authenticate UDDI User
+		String token = WebServices.WebServicesClientHelper.getAuthKey(security, "uddi", "uddi");
+		BrokerService brokerService = null;
+		try {
+			BusinessList findBusiness = WebServices.WebServicesClientHelper.partialBusinessNameSearch(inquiry, token,
+					"Local" + UDDIConstants.WILDCARD);
+
+			// Get the 1 business we expect to find (or loop through many
+			// matching businesses)
+			BusinessInfo info = findBusiness.getBusinessInfos().getBusinessInfo().get(0);
+			ServiceDetail serviceDetail = WebServices.WebServicesClientHelper.getServiceDetail(inquiry, token, info);
+			
+			// Step.5 Begin
+			// invoke the associated service
+			// For each service, look for a binding template and contact the
+			// service...
+			System.out.println("Found: " + info.getName());
+			for (int k = 0; k < serviceDetail.getBusinessService().size(); k++) {
+				BindingTemplate bindingTemplate = serviceDetail.getBusinessService().get(k).getBindingTemplates()
+						.getBindingTemplate().get(0);
+
+				System.out.println("Access: " + bindingTemplate.getBindingKey());
+				URL wsdlUrl = new URL(bindingTemplate.getAccessPoint().getValue());
+				QName qname = new QName("http://core.service/", "BrokerService");
+				Service service = Service.create(wsdlUrl, qname);
+				brokerService  =  service.getPort(
+		        		new QName("http://core.service/", "BrokerServicePort"),
+		        		BrokerService.class
+		        		);
+				//System.out.println(helloWorld.sayHi("It's Meee!!!"));
+			}
+			// Step.5 Finish
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 //		BrokerService brokerService = ServiceRegistry.lookup(BROKER_SERVICE, BrokerService.class);
 		
-		URL	wsdlUrl = new URL("http://localhost:9000/StockService/GetStockQuote?wsdl");
-		
-		QName qname = new QName("http://core.service/", "BrokerService");
-        Service service = Service.create(wsdlUrl, qname);
-        BrokerService brokerService  =  service.getPort(
-        		new QName("http://core.service/", "BrokerServicePort"),
-        		BrokerService.class
-        		);
+//		URL	wsdlUrl = new URL("http://localhost:9000/StockService/GetStockQuote?wsdl");
+//		
+//		QName qname = new QName("http://core.service/", "BrokerService");
+//        Service service = Service.create(wsdlUrl, qname);
+//        BrokerService brokerService  =  service.getPort(
+//        		new QName("http://core.service/", "BrokerServicePort"),
+//        		BrokerService.class
+//        		);
  
 		// Create the broker and run the test data
 		for (ClientInfo info : clients) {
