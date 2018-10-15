@@ -1,0 +1,4 @@
+﻿Program Deploying Procedure
+1. Run ‘Server.java’ in client folder.
+2. Run ‘Client.java’ in client folder.
+3. The program allows users to choose the list of price information they are interested. Just follow the hint.

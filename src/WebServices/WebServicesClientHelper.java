@@ -1,6 +1,6 @@
 package WebServices;
 
-import java.rmi.RemoteException;
+//import java.rmi.RemoteException;
 
 import org.apache.juddi.v3.client.UDDIConstants;
 import org.uddi.api_v3.AuthToken;
@@ -11,7 +11,7 @@ import org.uddi.api_v3.GetAuthToken;
 import org.uddi.api_v3.GetServiceDetail;
 import org.uddi.api_v3.Name;
 import org.uddi.api_v3.ServiceDetail;
-import org.uddi.v3_service.DispositionReportFaultMessage;
+//import org.uddi.v3_service.DispositionReportFaultMessage;
 import org.uddi.v3_service.UDDIInquiryPortType;
 import org.uddi.v3_service.UDDISecurityPortType;
 
@@ -46,11 +46,13 @@ public class WebServicesClientHelper {
 	// Step.3 Begin
 	// find the Businesses you are interested in
 	public static BusinessList partialBusinessNameSearch(UDDIInquiryPortType inquiry, String token, String partialName) throws Exception {
+		
+		System.out.println("WSCHpBNS");
 		FindBusiness fb = new FindBusiness();
 		fb.setAuthInfo(token);
 		org.uddi.api_v3.FindQualifiers fq = new org.uddi.api_v3.FindQualifiers();
 		fq.getFindQualifier().add(UDDIConstants.APPROXIMATE_MATCH);
-
+		
 		fb.setFindQualifiers(fq);
 		Name searchname = new Name();
 		searchname.setValue(partialName);

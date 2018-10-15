@@ -1,15 +1,22 @@
 package service.girlpower;
 
 import javax.jws.WebService;
-import javax.jws.soap.SOAPBinding;
-import javax.jws.soap.SOAPBinding.Style;
-import javax.jws.soap.SOAPBinding.Use;
+//import javax.jws.soap.SOAPBinding;
+//import javax.jws.soap.SOAPBinding.Style;
+//import javax.jws.soap.SOAPBinding.Use;
 
+import org.apache.juddi.v3.client.UDDIConstants;
 import org.apache.juddi.v3.client.config.UDDIClerk;
 import org.apache.juddi.v3.client.config.UDDIClient;
+import org.apache.juddi.v3.client.transport.Transport;
+import org.uddi.api_v3.BusinessList;
 import org.uddi.api_v3.BusinessService;
+import org.uddi.v3_service.UDDIInquiryPortType;
+import org.uddi.v3_service.UDDISecurityPortType;
 
-import service.broker.LocalBrokerService;
+//import client.Server;
+//import service.auldfellas.AFQService;
+//import service.broker.LocalBrokerService;
 import service.core.AbstractQuotationService;
 import service.core.ClientInfo;
 import service.core.Quotation;
@@ -30,11 +37,10 @@ import service.core.QuotationService;
 //@SOAPBinding(style = Style.DOCUMENT, use=Use.LITERAL)
 
 public class GPQService extends AbstractQuotationService implements QuotationService {
-	// All references are to be prefixed with an DD (e.g. DD001000)
-	public static final String PREFIX = "GP";
-	public static final String COMPANY = "Girl Power Inc.";
 	
-private static UDDIClerk clerk = null;
+	public static final String GPQAddress = "http://localhost:9003/StockService/GetStockQuote";
+
+	private static UDDIClerk clerk = null;
 	
 	public GPQService() {
 		// Step.1 Begin
@@ -48,11 +54,41 @@ private static UDDIClerk clerk = null;
 			e.printStackTrace();
 		}
 		//Step.1 Finish
+	}
+	
+	public UDDIClerk getClerk() {
+		return GPQService.clerk;
+	}
+	
+	public boolean checkService() throws Exception {
+		UDDISecurityPortType security = null;
+		UDDIInquiryPortType inquiry = null;
 		
+		try {
+			UDDIClient client = new UDDIClient("META-INF/simple-browse-uddi.xml");
+
+			Transport transport = client.getTransport("default");
+
+			security = transport.getUDDISecurityService();
+			inquiry = transport.getUDDIInquiryService();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		String token = WebServices.WebServicesClientHelper.getAuthKey(security, "uddi", "uddi");
+	    BusinessList findBusiness = WebServices.WebServicesClientHelper.partialBusinessNameSearch(inquiry, token,
+	              "GPQ" + UDDIConstants.WILDCARD);
+	    
+		return (findBusiness.getBusinessInfos() == null);
+	}
+	
+	// Step.4 Begin
+	// publish the service to jUDDI
+	public void publish(UDDIClerk clerk) {
 		try {
 			String myBusKey = WebServices.WebServicesHelper.createBusiness("GPQService", clerk);
 
-			BusinessService myService = WebServices.WebServicesHelper.createWSDLService("GPQService", myBusKey, LocalBrokerService.GPQAddress);
+			BusinessService myService = WebServices.WebServicesHelper.createWSDLService("GPQService", myBusKey, GPQAddress);
 			BusinessService svc = clerk.register(myService);
 			if (svc == null) {
 				System.out.println("Save failed!");
@@ -60,37 +96,20 @@ private static UDDIClerk clerk = null;
 			}
 
 			String myServKey = svc.getServiceKey();
-
+			System.out.println("myService key:  " + myServKey);
+			
 			clerk.discardAuthToken();
+			System.out.println("GPQ Business Registered!");
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
+	// Step.4 Finish
 	
-//	// Step.4 Begin
-//	// publish the service to jUDDI
-//	public void publish() {
-//		try {
-//			String myBusKey = WebServices.WebServicesHelper.createBusiness("GPQService", clerk);
-//
-//			BusinessService myService = WebServices.WebServicesHelper.createWSDLService("GPQService", myBusKey, LocalBrokerService.GPQAddress);
-//			BusinessService svc = clerk.register(myService);
-//			if (svc == null) {
-//				System.out.println("Save failed!");
-//				System.exit(1);
-//			}
-//
-//			String myServKey = svc.getServiceKey();
-//
-//			clerk.discardAuthToken();
-//
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//	}
-//	// Step.4 Finish
-	
+// All references are to be prefixed with an DD (e.g. DD001000)
+	public static final String PREFIX = "GP";
+	public static final String COMPANY = "Girl Power Inc.";
 	/**
 	 * Quote generation:
 	 * 50% discount for being female
@@ -126,8 +145,7 @@ private static UDDIClerk clerk = null;
 		if (info.points == 0) return 20;
 		if (info.points < 3) return 15;
 		if (info.points < 6) return 0;
-		return -100;
-		
+		return -100;	
 	}
 
 }

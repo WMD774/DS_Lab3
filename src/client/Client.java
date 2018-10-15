@@ -1,8 +1,9 @@
 package client;
 
-import java.net.MalformedURLException;
+//import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.NumberFormat;
+import java.util.Scanner;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
@@ -17,13 +18,13 @@ import org.uddi.api_v3.ServiceDetail;
 import org.uddi.v3_service.UDDIInquiryPortType;
 import org.uddi.v3_service.UDDISecurityPortType;
 
-import service.auldfellas.AFQService;
-import service.broker.LocalBrokerService;
+//import service.auldfellas.AFQService;
+//import service.broker.LocalBrokerService;
 import service.core.BrokerService;
 import service.core.ClientInfo;
 import service.core.Quotation;
-import service.dodgydrivers.DDQService;
-import service.girlpower.GPQService;
+//import service.dodgydrivers.DDQService;
+//import service.girlpower.GPQService;
 //import service.registry.ServiceRegistry;
 
 public class Client {
@@ -55,6 +56,37 @@ public class Client {
 	
 	
 	public static void main(String[] args) throws Exception {
+		
+		// Get user's option.
+		Scanner sc = new Scanner(System.in); 
+        System.out.println("Do you want to get price from Auldfellas? (0-No, 1-Yes)"); 
+        int input_a = sc.nextInt(); 
+        while (input_a == 0 || input_a == 1) {
+        	System.out.println("Invalid input, ONLY 0 AND 1 ARE ALLOWED. Please try again.");
+        	System.out.println("Do you want to get price from Auldfellas? (0-No, 1-Yes)"); 
+            input_a = sc.nextInt(); 
+        }
+        
+        System.out.println("Do you want to get price from Dodgydrivers? (0-No, 1-Yes)"); 
+        int input_d = sc.nextInt(); 
+        while (input_d == 0 || input_d == 1) {
+        	System.out.println("Invalid input, ONLY 0 AND 1 ARE ALLOWED. Please try again.");
+        	System.out.println("Do you want to get price from Dodgydrivers? (0-No, 1-Yes)"); 
+            input_d = sc.nextInt(); 
+        }
+        
+        System.out.println("Do you want to get price from Girlpower? (0-No, 1-Yes)"); 
+        int input_g = sc.nextInt(); 
+        while (input_d == 0 || input_d == 1) {
+        	System.out.println("Invalid input, ONLY 0 AND 1 ARE ALLOWED. Please try again.");
+        	System.out.println("Do you want to get price from Girlpower? (0-No, 1-Yes)"); 
+            input_d = sc.nextInt(); 
+        }
+        sc.close();
+        System.out.println("Thanks for your cooperation!");
+        
+        int input = 100*input_a + 10*input_d + input_g; 
+		
 		// Step.1 Begin
 		// connect to the jUDDI server
 		UDDISecurityPortType security = null;
@@ -89,8 +121,8 @@ public class Client {
 			// For each service, look for a binding template and contact the
 			// service...
 			System.out.println("Found: " + info.getName());
-			for (int k = 0; k < serviceDetail.getBusinessService().size(); k++) {
-				BindingTemplate bindingTemplate = serviceDetail.getBusinessService().get(k).getBindingTemplates()
+//			for (int k = 0; k < serviceDetail.getBusinessService().size(); k++) {
+				BindingTemplate bindingTemplate = serviceDetail.getBusinessService().get(0).getBindingTemplates()
 						.getBindingTemplate().get(0);
 
 				System.out.println("Access: " + bindingTemplate.getBindingKey());
@@ -102,7 +134,7 @@ public class Client {
 		        		BrokerService.class
 		        		);
 				//System.out.println(helloWorld.sayHi("It's Meee!!!"));
-			}
+//			}
 			// Step.5 Finish
 			
 		} catch (Exception e) {
@@ -125,7 +157,7 @@ public class Client {
 			displayProfile(info);
 			
 			// Retrieve quotations from the broker and display them...
-			for(Quotation quotation : brokerService.getQuotations(info)) {
+			for(Quotation quotation : brokerService.getQuotations(info, input)) {
 				displayQuotation(quotation);
 			}
 			

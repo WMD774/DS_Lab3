@@ -1,17 +1,17 @@
 package client;
 
-import java.text.NumberFormat;
+//import java.text.NumberFormat;
 
 import javax.xml.ws.Endpoint;
 
-import org.apache.juddi.v3.client.config.UDDIClerk;
-import org.apache.juddi.v3.client.config.UDDIClient;
+//import org.apache.juddi.v3.client.config.UDDIClerk;
+//import org.apache.juddi.v3.client.config.UDDIClient;
 
 import service.auldfellas.AFQService;
 import service.broker.LocalBrokerService;
-import service.core.BrokerService;
-import service.core.ClientInfo;
-import service.core.Quotation;
+//import service.core.BrokerService;
+//import service.core.ClientInfo;
+//import service.core.Quotation;
 import service.dodgydrivers.DDQService;
 import service.girlpower.GPQService;
 //import service.registry.ServiceRegistry;
@@ -21,33 +21,22 @@ public class Server {
 //	public static final String GIRL_POWER_SERVICE = "qs-GirlPowerService";  
 //	public static final String AULD_FELLAS_SERVICE = "qs-AuldFellasService";  
 //	public static final String DODGY_DRIVERS_SERVICE = "qs-DodgyDriversService";
-	public static final String AFQAddress = "http://localhost:9001/StockService/GetStockQuote";
-	public static final String DDQAddress = "http://localhost:9002/StockService/GetStockQuote";
-	public static final String GPQAddress = "http://localhost:9003/StockService/GetStockQuote";
+//	public static final String AFQAddress = "http://localhost:9001/StockService/GetStockQuote";
+//	public static final String DDQAddress = "http://localhost:9002/StockService/GetStockQuote";
+//	public static final String GPQAddress = "http://localhost:9003/StockService/GetStockQuote";
+
 	
-	static {
-		AFQService afq = new AFQService();
-		Endpoint.publish(AFQAddress, afq);
-		//afq.publish();
-		
-		DDQService ddq = new DDQService();
-		Endpoint.publish(DDQAddress, ddq);
-		//ddq.publish();
-		
-		GPQService gpq = new GPQService();
-		Endpoint.publish(GPQAddress, gpq);
-		//gpq.publish();
-		
+//	static {
 //		Endpoint.publish(AFQAddress, new AFQService());
 //		Endpoint.publish(DDQAddress, new DDQService());
 //		Endpoint.publish(GPQAddress, new GPQService());		
-		
-		// Create the services and bind them to the registry.
+//		
+//		// Create the services and bind them to the registry.
 //		ServiceRegistry.bind(GIRL_POWER_SERVICE, new GPQService());
 //		ServiceRegistry.bind(AULD_FELLAS_SERVICE, new AFQService());
 //		ServiceRegistry.bind(DODGY_DRIVERS_SERVICE, new DDQService());
 //		ServiceRegistry.bind(BROKER_SERVICE, new LocalBrokerService());
-	}
+//	}
 	
 	/**
 	 * This is the starting point for the application. Here, we must
@@ -62,12 +51,27 @@ public class Server {
 	
 	public static final String ENDPOINT_URL = "http://localhost:9000/StockService/GetStockQuote";
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
+		
+		AFQService afq = new AFQService();
+		Endpoint.publish(AFQService.AFQAddress, afq);
+		if (afq.checkService())	afq.publish(afq.getClerk());
+		
+		DDQService ddq = new DDQService();
+		Endpoint.publish(DDQService.DDQAddress, ddq);
+		if (ddq.checkService())	ddq.publish(ddq.getClerk());
+		
+		GPQService gpq = new GPQService();
+		Endpoint.publish(GPQService.GPQAddress, gpq);
+		if (gpq.checkService())	gpq.publish(gpq.getClerk());
 		
 		
 		LocalBrokerService lbs = new LocalBrokerService();
-//		BrokerService brokerService = ServiceRegistry.lookup(BROKER_SERVICE, BrokerService.class);
 		Endpoint.publish(ENDPOINT_URL, lbs);
+		if (lbs.checkService())	lbs.publish(lbs.getClerk());
+		
+//		BrokerService brokerService = ServiceRegistry.lookup(BROKER_SERVICE, BrokerService.class);
+//		Endpoint.publish(ENDPOINT_URL, lbs);
 //		Endpoint.publish("http://localhost:9000/StockService/GetStockQuote", new AFQService());
 //		Endpoint.publish("http://localhost:9000/StockService/GetStockQuote", new DDQService());
 //		Endpoint.publish("http://localhost:9000/StockService/GetStockQuote", new GPQService());
@@ -83,8 +87,6 @@ public class Server {
 //			// Print a couple of lines between each client
 //			System.out.println("\n");
 //		}
-		
-		//lbs.publish();
 	}
 	
 //	/**

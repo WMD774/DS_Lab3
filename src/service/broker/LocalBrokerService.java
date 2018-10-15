@@ -1,14 +1,15 @@
 package service.broker;
 
-import java.net.MalformedURLException;
+//import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
+//import java.util.regex.Pattern;
 
 import javax.jws.WebService;
-import javax.jws.soap.SOAPBinding;
-import javax.jws.soap.SOAPBinding.Style;
-import javax.jws.soap.SOAPBinding.Use;
+//import javax.jws.soap.SOAPBinding;
+//import javax.jws.soap.SOAPBinding.Style;
+//import javax.jws.soap.SOAPBinding.Use;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 
@@ -30,7 +31,8 @@ import service.core.ClientInfo;
 import service.core.Quotation;
 import service.core.QuotationService;
 //import service.registry.ServiceRegistry;
-import service.dodgydrivers.DDQService;
+//import service.dodgydrivers.DDQService;
+//import service.girlpower.GPQService;
 
 /**
  * Implementation of the broker service that uses the Service Registry.
@@ -48,9 +50,9 @@ import service.dodgydrivers.DDQService;
 
 public class LocalBrokerService implements BrokerService {
 	
-	public static final String AFQAddress = "http://localhost:9001/StockService/GetStockQuote";
-	public static final String DDQAddress = "http://localhost:9002/StockService/GetStockQuote";
-	public static final String GPQAddress = "http://localhost:9003/StockService/GetStockQuote";
+//	public static final String AFQAddress = "http://localhost:9001/StockService/GetStockQuote";
+//	public static final String DDQAddress = "http://localhost:9002/StockService/GetStockQuote";
+//	public static final String GPQAddress = "http://localhost:9003/StockService/GetStockQuote";
 	
 	private static UDDIClerk clerk = null;
 	
@@ -66,7 +68,37 @@ public class LocalBrokerService implements BrokerService {
 			e.printStackTrace();
 		}
 		//Step.1 Finish
+	}
 		
+	public UDDIClerk getClerk() {
+		return LocalBrokerService.clerk;
+	}
+	
+	public boolean checkService() throws Exception {
+		UDDISecurityPortType security = null;
+		UDDIInquiryPortType inquiry = null;
+		
+		try {
+			UDDIClient client = new UDDIClient("META-INF/simple-browse-uddi.xml");
+
+			Transport transport = client.getTransport("default");
+
+			security = transport.getUDDISecurityService();
+			inquiry = transport.getUDDIInquiryService();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		String token = WebServices.WebServicesClientHelper.getAuthKey(security, "uddi", "uddi");
+	    BusinessList findBusiness = WebServices.WebServicesClientHelper.partialBusinessNameSearch(inquiry, token,
+	              "Local" + UDDIConstants.WILDCARD);
+	    
+		return (findBusiness.getBusinessInfos() == null);
+	}
+	
+	// Step.4 Begin
+	// publish the service to jUDDI
+	public void publish(UDDIClerk clerk) {
 		try {
 			String myBusKey = WebServices.WebServicesHelper.createBusiness("LocalBrokerService", clerk);
 
@@ -78,40 +110,18 @@ public class LocalBrokerService implements BrokerService {
 			}
 
 			String myServKey = svc.getServiceKey();
-
+			System.out.println("myService key:  " + myServKey);
+			
 			clerk.discardAuthToken();
-
+			System.out.println("Local Broker Server Registered!");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
-//	// Step.4 Begin
-//		// publish the service to jUDDI
-//		public void publish() {
-//			try {
-//				String myBusKey = WebServices.WebServicesHelper.createBusiness("LocalBrokerService", clerk);
-//
-//				BusinessService myService = WebServices.WebServicesHelper.createWSDLService("LocalBrokerService", myBusKey, Server.ENDPOINT_URL);
-//				BusinessService svc = clerk.register(myService);
-//				if (svc == null) {
-//					System.out.println("Save failed!");
-//					System.exit(1);
-//				}
-//
-//				String myServKey = svc.getServiceKey();
-//
-//				clerk.discardAuthToken();
-//
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//			}
-//		}
-//		// Step.4 Finish
+	// Step.4 Finish
 
-	
 	//	public List<Quotation> getQuotations(ClientInfo info) {
-	public Quotation[] getQuotations(ClientInfo info) throws Exception {
+	public Quotation[] getQuotations(ClientInfo info, int k) throws Exception {
 		// Step.1 Begin
 		// connect to the jUDDI server
 		UDDISecurityPortType security = null;
@@ -128,8 +138,24 @@ public class LocalBrokerService implements BrokerService {
 			e.printStackTrace();
 		}
 		// Step.1 Finish
+		
 //		String Addr[] = {AFQAddress+"?wsdl",DDQAddress+"?wsdl",GPQAddress+"?wsdl"};
-		String Name[] = {"AFQ","DDQ","GPQ"};
+//		String pattern = "(\\d+)(\\d+)(\\d)";
+
+//		if(Pattern.matches(pattern, Integer.toString(k))) {
+		int a = k/100;
+		int d = (k/10)%10;
+		int g = (k%100)%10;
+//		}
+		String[] Name = {};
+		int n = Name.length;
+		if (a == 1) Name[n] = "AFQ";
+		n = Name.length; 
+		if (d == 1) Name[n] = "DDQ";
+		n = Name.length; 
+		if (g == 1) Name[n] = "GPQ";
+//		String Name[] = {"AFQ","DDQ","GPQ"};
+		
 		// Authenticate UDDI User
 		String token = WebServices.WebServicesClientHelper.getAuthKey(security, "uddi", "uddi");
 		QuotationService quotationService = null;
@@ -154,27 +180,28 @@ public class LocalBrokerService implements BrokerService {
 				// For each service, look for a binding template and contact the
 				// service...
 				System.out.println("Found: " + info1.getName());
-				for (int k = 0; k < serviceDetail.getBusinessService().size(); k++) {
-					BindingTemplate bindingTemplate = serviceDetail.getBusinessService().get(k).getBindingTemplates()
-							.getBindingTemplate().get(0);
+//				for (int k = 0; k < serviceDetail.getBusinessService().size(); k++) {
+				BindingTemplate bindingTemplate = serviceDetail.getBusinessService().get(0).getBindingTemplates()
+						.getBindingTemplate().get(0);
 
-					System.out.println("Access: " + bindingTemplate.getBindingKey());
-					URL = new URL(bindingTemplate.getAccessPoint().getValue());
-					qname = new QName("http://core.service/", "BrokerService");
-					service = Service.create(URL, qname);
-					quotationService  =  service.getPort(
-			        		new QName("http://core.service/", "BrokerServicePort"),
-			        		QuotationService.class
-			        		);
-					quotations.add(quotationService.generateQuotation(info));
+				System.out.println("Access: " + bindingTemplate.getBindingKey());
+				URL = new URL(bindingTemplate.getAccessPoint().getValue());
+				qname = new QName("http://core.service/", "BrokerService");
+				service = Service.create(URL, qname);
+				quotationService  =  service.getPort(
+		        		new QName("http://core.service/", "BrokerServicePort"),
+		        		QuotationService.class
+		        		);
+				quotations.add(quotationService.generateQuotation(info));
 					//System.out.println(helloWorld.sayHi("It's Meee!!!"));
-				}
+//				}
 				// Step.5 Finish
 				
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			
 		}
 		
 		
