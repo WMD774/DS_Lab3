@@ -41,11 +41,13 @@ import service.core.QuotationService;
  *
  */
 
-@WebService(
-		serviceName="BrokerService",
-		targetNamespace="http://core.service/",
-		portName="BrokerServicePort"
-)
+@WebService(endpointInterface = "service.core.BrokerService",
+		serviceName="BrokerService")
+//@WebService(
+//serviceName="BrokerService",
+//targetNamespace="http://core.service/",
+//portName="BrokerServicePort"
+//)
 //@SOAPBinding(style = Style.DOCUMENT, use=Use.LITERAL)
 
 public class LocalBrokerService implements BrokerService {
@@ -54,71 +56,71 @@ public class LocalBrokerService implements BrokerService {
 //	public static final String DDQAddress = "http://localhost:9002/StockService/GetStockQuote";
 //	public static final String GPQAddress = "http://localhost:9003/StockService/GetStockQuote";
 	
-	private static UDDIClerk clerk = null;
-	
-	public LocalBrokerService() {
-		// Step.1 Begin
-    	// create a UDDIClerk object
-		try {
-			UDDIClient uddiClient = new UDDIClient("META-INF/uddi.xml");
-			clerk = uddiClient.getClerk("default");
-			if (clerk == null)
-				throw new Exception("the clerk wasn't found, check the config file!");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		//Step.1 Finish
-	}
-		
-	public UDDIClerk getClerk() {
-		return LocalBrokerService.clerk;
-	}
-	
-	public boolean checkService() throws Exception {
-		UDDISecurityPortType security = null;
-		UDDIInquiryPortType inquiry = null;
-		
-		try {
-			UDDIClient client = new UDDIClient("META-INF/simple-browse-uddi.xml");
-
-			Transport transport = client.getTransport("default");
-
-			security = transport.getUDDISecurityService();
-			inquiry = transport.getUDDIInquiryService();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		String token = WebServices.WebServicesClientHelper.getAuthKey(security, "uddi", "uddi");
-	    BusinessList findBusiness = WebServices.WebServicesClientHelper.partialBusinessNameSearch(inquiry, token,
-	              "Local" + UDDIConstants.WILDCARD);
-	    
-		return (findBusiness.getBusinessInfos() == null);
-	}
-	
-	// Step.4 Begin
-	// publish the service to jUDDI
-	public void publish(UDDIClerk clerk) {
-		try {
-			String myBusKey = WebServices.WebServicesHelper.createBusiness("LocalBrokerService", clerk);
-
-			BusinessService myService = WebServices.WebServicesHelper.createWSDLService("LocalBrokerService", myBusKey, Server.ENDPOINT_URL);
-			BusinessService svc = clerk.register(myService);
-			if (svc == null) {
-				System.out.println("Save failed!");
-				System.exit(1);
-			}
-
-			String myServKey = svc.getServiceKey();
-			System.out.println("myService key:  " + myServKey);
-			
-			clerk.discardAuthToken();
-			System.out.println("Local Broker Server Registered!");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	// Step.4 Finish
+//	private static UDDIClerk clerk = null;
+//	
+//	public LocalBrokerService() {
+//		// Step.1 Begin
+//    	// create a UDDIClerk object
+//		try {
+//			UDDIClient uddiClient = new UDDIClient("META-INF/uddi.xml");
+//			clerk = uddiClient.getClerk("default");
+//			if (clerk == null)
+//				throw new Exception("the clerk wasn't found, check the config file!");
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		//Step.1 Finish
+//	}
+//		
+//	public UDDIClerk getClerk() {
+//		return LocalBrokerService.clerk;
+//	}
+//	
+//	public boolean checkService() throws Exception {
+//		UDDISecurityPortType security = null;
+//		UDDIInquiryPortType inquiry = null;
+//		
+//		try {
+//			UDDIClient client = new UDDIClient("META-INF/simple-browse-uddi.xml");
+//
+//			Transport transport = client.getTransport("default");
+//
+//			security = transport.getUDDISecurityService();
+//			inquiry = transport.getUDDIInquiryService();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		
+//		String token = WebServices.WebServicesClientHelper.getAuthKey(security, "uddi", "uddi");
+//	    BusinessList findBusiness = WebServices.WebServicesClientHelper.partialBusinessNameSearch(inquiry, token,
+//	              "Local" + UDDIConstants.WILDCARD);
+//	    
+//		return (findBusiness.getBusinessInfos() == null);
+//	}
+//	
+//	// Step.4 Begin
+//	// publish the service to jUDDI
+//	public void publish(UDDIClerk clerk) {
+//		try {
+//			String myBusKey = WebServices.WebServicesHelper.createBusiness("LocalBrokerService", clerk);
+//
+//			BusinessService myService = WebServices.WebServicesHelper.createWSDLService("LocalBrokerService", myBusKey, Server.ENDPOINT_URL);
+//			BusinessService svc = clerk.register(myService);
+//			if (svc == null) {
+//				System.out.println("Save failed!");
+//				System.exit(1);
+//			}
+//
+//			String myServKey = svc.getServiceKey();
+//			System.out.println("myService key:  " + myServKey);
+//			
+//			clerk.discardAuthToken();
+//			System.out.println("Local Broker Server Registered!");
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//	}
+//	// Step.4 Finish
 
 	//	public List<Quotation> getQuotations(ClientInfo info) {
 	public Quotation[] getQuotations(ClientInfo info, int k) throws Exception {
@@ -147,13 +149,13 @@ public class LocalBrokerService implements BrokerService {
 		int d = (k/10)%10;
 		int g = (k%100)%10;
 //		}
-		String[] Name = {};
-		int n = Name.length;
-		if (a == 1) Name[n] = "AFQ";
-		n = Name.length; 
-		if (d == 1) Name[n] = "DDQ";
-		n = Name.length; 
-		if (g == 1) Name[n] = "GPQ";
+		String[] Name  = {"Q","Q","Q"};
+		
+		if (a == 1) Name[0] = "AFQ";
+		if (d == 1) Name[1] = "DDQ";
+		if (g == 1) Name[2] = "GPQ";
+		
+		
 //		String Name[] = {"AFQ","DDQ","GPQ"};
 		
 		// Authenticate UDDI User
@@ -163,43 +165,47 @@ public class LocalBrokerService implements BrokerService {
 		Service service;
 		List<Quotation> quotations = new LinkedList<Quotation>();
 		URL URL;
+		String AddressName = null;
 		
 		for (String name : Name) {
-			try {
-				
-				BusinessList findBusiness = WebServices.WebServicesClientHelper.partialBusinessNameSearch(inquiry, token,
-						name + UDDIConstants.WILDCARD);
-
-				// Get the 1 business we expect to find (or loop through many
-				// matching businesses)
-				BusinessInfo info1 = findBusiness.getBusinessInfos().getBusinessInfo().get(0);
-				ServiceDetail serviceDetail = WebServices.WebServicesClientHelper.getServiceDetail(inquiry, token, info1);
-				
-				// Step.5 Begin
-				// invoke the associated service
-				// For each service, look for a binding template and contact the
-				// service...
-				System.out.println("Found: " + info1.getName());
-//				for (int k = 0; k < serviceDetail.getBusinessService().size(); k++) {
-				BindingTemplate bindingTemplate = serviceDetail.getBusinessService().get(0).getBindingTemplates()
-						.getBindingTemplate().get(0);
-
-				System.out.println("Access: " + bindingTemplate.getBindingKey());
-				URL = new URL(bindingTemplate.getAccessPoint().getValue());
-				qname = new QName("http://core.service/", "BrokerService");
-				service = Service.create(URL, qname);
-				quotationService  =  service.getPort(
-		        		new QName("http://core.service/", "BrokerServicePort"),
-		        		QuotationService.class
-		        		);
-				quotations.add(quotationService.generateQuotation(info));
-					//System.out.println(helloWorld.sayHi("It's Meee!!!"));
-//				}
-				// Step.5 Finish
-				
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			if (name == "Q") ;
+			else {
+				try {
+					if(name == "AFQ") AddressName = "auldfellas";
+					if(name == "DDQ") AddressName = "dodgydrivers";
+					if(name == "GPQ") AddressName = "girlpower";
+					
+					BusinessList findBusiness = WebServices.WebServicesClientHelper.partialBusinessNameSearch(inquiry, token,
+							name + UDDIConstants.WILDCARD);
+	
+					// Get the 1 business we expect to find (or loop through many
+					// matching businesses)
+					BusinessInfo info1 = findBusiness.getBusinessInfos().getBusinessInfo().get(0);
+					ServiceDetail serviceDetail = WebServices.WebServicesClientHelper.getServiceDetail(inquiry, token, info1);
+					
+					// Step.5 Begin
+					// invoke the associated service
+					// For each service, look for a binding template and contact the
+					// service...
+					System.out.println("Found: " + info1.getName());
+					for (int k1 = 0; k1 < serviceDetail.getBusinessService().size(); k1++) {
+					BindingTemplate bindingTemplate = serviceDetail.getBusinessService().get(k1).getBindingTemplates()
+							.getBindingTemplate().get(0);
+	
+					System.out.println("Access: " + bindingTemplate.getBindingKey());
+					URL = new URL(bindingTemplate.getAccessPoint().getValue());
+					qname = new QName("http://"+ AddressName +".service/", "QuotationService");
+					service = Service.create(URL, qname);
+					quotationService  =  service.getPort(QuotationService.class);
+					quotations.add(quotationService.generateQuotation(info));
+						//System.out.println(helloWorld.sayHi("It's Meee!!!"));
+					}
+					// Step.5 Finish
+					
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 			
 		}

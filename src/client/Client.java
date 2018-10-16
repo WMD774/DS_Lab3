@@ -60,8 +60,10 @@ public class Client {
 		// Get user's option.
 		Scanner sc = new Scanner(System.in); 
         System.out.println("Do you want to get price from Auldfellas? (0-No, 1-Yes)"); 
-        int input_a = sc.nextInt(); 
-        while (input_a == 0 || input_a == 1) {
+        int input_a = sc.nextInt();
+//        String input_a = sc.nextLine(); 
+//        while ((!input_a.equals("0"))|| (!input_a.equals("1"))) {
+        while((input_a != 0) && (input_a != 1)) {
         	System.out.println("Invalid input, ONLY 0 AND 1 ARE ALLOWED. Please try again.");
         	System.out.println("Do you want to get price from Auldfellas? (0-No, 1-Yes)"); 
             input_a = sc.nextInt(); 
@@ -69,7 +71,7 @@ public class Client {
         
         System.out.println("Do you want to get price from Dodgydrivers? (0-No, 1-Yes)"); 
         int input_d = sc.nextInt(); 
-        while (input_d == 0 || input_d == 1) {
+        while ((input_d != 0) && (input_d != 1)) {
         	System.out.println("Invalid input, ONLY 0 AND 1 ARE ALLOWED. Please try again.");
         	System.out.println("Do you want to get price from Dodgydrivers? (0-No, 1-Yes)"); 
             input_d = sc.nextInt(); 
@@ -77,13 +79,14 @@ public class Client {
         
         System.out.println("Do you want to get price from Girlpower? (0-No, 1-Yes)"); 
         int input_g = sc.nextInt(); 
-        while (input_d == 0 || input_d == 1) {
+        while ((input_g != 0) && (input_g != 1)) {
         	System.out.println("Invalid input, ONLY 0 AND 1 ARE ALLOWED. Please try again.");
         	System.out.println("Do you want to get price from Girlpower? (0-No, 1-Yes)"); 
-            input_d = sc.nextInt(); 
+            input_g = sc.nextInt(); 
         }
         sc.close();
         System.out.println("Thanks for your cooperation!");
+        
         
         int input = 100*input_a + 10*input_d + input_g; 
 		
@@ -127,12 +130,10 @@ public class Client {
 
 				System.out.println("Access: " + bindingTemplate.getBindingKey());
 				URL wsdlUrl = new URL(bindingTemplate.getAccessPoint().getValue());
-				QName qname = new QName("http://core.service/", "BrokerService");
+				QName qname = new QName("http://broker.service/", "BrokerService");
 				Service service = Service.create(wsdlUrl, qname);
-				brokerService  =  service.getPort(
-		        		new QName("http://core.service/", "BrokerServicePort"),
-		        		BrokerService.class
-		        		);
+				brokerService  =  service.getPort(BrokerService.class);
+				System.out.println(brokerService);
 				//System.out.println(helloWorld.sayHi("It's Meee!!!"));
 //			}
 			// Step.5 Finish

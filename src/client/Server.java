@@ -4,6 +4,15 @@ package client;
 
 import javax.xml.ws.Endpoint;
 
+import org.apache.juddi.v3.client.UDDIConstants;
+import org.apache.juddi.v3.client.config.UDDIClerk;
+import org.apache.juddi.v3.client.config.UDDIClient;
+import org.apache.juddi.v3.client.transport.Transport;
+import org.uddi.api_v3.BusinessList;
+import org.uddi.api_v3.BusinessService;
+import org.uddi.v3_service.UDDIInquiryPortType;
+import org.uddi.v3_service.UDDISecurityPortType;
+
 //import org.apache.juddi.v3.client.config.UDDIClerk;
 //import org.apache.juddi.v3.client.config.UDDIClient;
 
@@ -51,24 +60,111 @@ public class Server {
 	
 	public static final String ENDPOINT_URL = "http://localhost:9000/StockService/GetStockQuote";
 	
+	
+	public UDDIClerk createUDDIClerk(UDDIClerk clerk) {
+		// Step.1 Begin
+    	// create a UDDIClerk object
+		try {
+			UDDIClient uddiClient = new UDDIClient("META-INF/uddi.xml");
+			clerk = uddiClient.getClerk("default");
+			if (clerk == null)
+				throw new Exception("the clerk wasn't found, check the config file!");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		//Step.1 Finish
+		return clerk;
+	}
+	
+	public boolean checkService(String name) throws Exception {
+		UDDISecurityPortType security = null;
+		UDDIInquiryPortType inquiry = null;
+		
+		try {
+			UDDIClient client = new UDDIClient("META-INF/simple-browse-uddi.xml");
+
+			Transport transport = client.getTransport("default");
+
+			security = transport.getUDDISecurityService();
+			inquiry = transport.getUDDIInquiryService();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		String token = WebServices.WebServicesClientHelper.getAuthKey(security, "uddi", "uddi");
+	    BusinessList findBusiness = WebServices.WebServicesClientHelper.partialBusinessNameSearch(inquiry, token,
+	              name + UDDIConstants.WILDCARD);
+	    
+		return (findBusiness.getBusinessInfos() == null);
+	}
+	
+	// Step.4 Begin
+	// publish the service to jUDDI
+	public void publish(UDDIClerk clerk,String name,String Address) {
+		try {
+			String myBusKey = WebServices.WebServicesHelper.createBusiness(name, clerk);
+
+			BusinessService myService = WebServices.WebServicesHelper.createWSDLService(name, myBusKey, Address);
+			BusinessService svc = clerk.register(myService);
+			if (svc == null) {
+				System.out.println("Save failed!");
+				System.exit(1);
+			}
+
+			String myServKey = svc.getServiceKey();
+			System.out.println("myService key:  " + myServKey);
+			
+			clerk.discardAuthToken();
+			System.out.println(name + "Business Registered!");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	// Step.4 Finish
+	
+	
+	
 	public static void main(String[] args) throws Exception {
+		Server server_afq = new Server();
+		UDDIClerk clerk_afq = null;
+		clerk_afq = server_afq.createUDDIClerk(clerk_afq);
+		Endpoint.publish(AFQService.AFQAddress, new AFQService());
+		if (server_afq.checkService("AFQ")) server_afq.publish(clerk_afq,"AFQService", AFQService.AFQAddress);
 		
-		AFQService afq = new AFQService();
-		Endpoint.publish(AFQService.AFQAddress, afq);
-		if (afq.checkService())	afq.publish(afq.getClerk());
+		Server server_ddq = new Server();
+		UDDIClerk clerk_ddq = null;
+		clerk_ddq = server_ddq.createUDDIClerk(clerk_ddq);
+		Endpoint.publish(DDQService.DDQAddress, new DDQService());
+		if (server_ddq.checkService("DDQ")) server_ddq.publish(clerk_ddq,"DDQService", DDQService.DDQAddress);
 		
-		DDQService ddq = new DDQService();
-		Endpoint.publish(DDQService.DDQAddress, ddq);
-		if (ddq.checkService())	ddq.publish(ddq.getClerk());
+		Server server_gpq = new Server();
+		UDDIClerk clerk_gpq = null;
+		clerk_gpq = server_gpq.createUDDIClerk(clerk_gpq);
+		Endpoint.publish(GPQService.GPQAddress, new GPQService());
+		if (server_gpq.checkService("GPQ")) server_gpq.publish(clerk_gpq,"GPQService", GPQService.GPQAddress);
 		
-		GPQService gpq = new GPQService();
-		Endpoint.publish(GPQService.GPQAddress, gpq);
-		if (gpq.checkService())	gpq.publish(gpq.getClerk());
+		Server server_lbs = new Server();
+		UDDIClerk clerk_lbs = null;
+		clerk_lbs = server_lbs.createUDDIClerk(clerk_lbs);
+		Endpoint.publish(ENDPOINT_URL, new LocalBrokerService());
+		if (server_lbs.checkService("Local")) server_lbs.publish(clerk_lbs,"LocalBrokerService", ENDPOINT_URL);
 		
-		
-		LocalBrokerService lbs = new LocalBrokerService();
-		Endpoint.publish(ENDPOINT_URL, lbs);
-		if (lbs.checkService())	lbs.publish(lbs.getClerk());
+//		AFQService afq = new AFQService();
+//		Endpoint.publish(AFQService.AFQAddress, afq);
+//		if (afq.checkService())	afq.publish(afq.getClerk());
+//		
+//		DDQService ddq = new DDQService();
+//		Endpoint.publish(DDQService.DDQAddress, ddq);
+//		if (ddq.checkService())	ddq.publish(ddq.getClerk());
+//		
+//		GPQService gpq = new GPQService();
+//		Endpoint.publish(GPQService.GPQAddress, gpq);
+//		if (gpq.checkService())	gpq.publish(gpq.getClerk());
+//		
+//		
+//		LocalBrokerService lbs = new LocalBrokerService();
+//		Endpoint.publish(ENDPOINT_URL, lbs);
+//		if (lbs.checkService())	lbs.publish(lbs.getClerk());
 		
 //		BrokerService brokerService = ServiceRegistry.lookup(BROKER_SERVICE, BrokerService.class);
 //		Endpoint.publish(ENDPOINT_URL, lbs);

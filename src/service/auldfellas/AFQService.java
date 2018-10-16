@@ -5,6 +5,7 @@ import javax.jws.WebService;
 //import javax.jws.soap.SOAPBinding.Style;
 //import javax.jws.soap.SOAPBinding.Use;
 //import javax.xml.ws.Endpoint;
+import javax.xml.ws.Endpoint;
 
 import org.apache.juddi.v3.client.UDDIConstants;
 import org.apache.juddi.v3.client.config.UDDIClerk;
@@ -31,11 +32,13 @@ import service.core.QuotationService;
  *
  */
 
-@WebService(
-		serviceName="BrokerService",
-		targetNamespace="http://core.service/",
-		portName="BrokerServicePort"
-)
+@WebService(endpointInterface = "service.core.QuotationService",
+serviceName="QuotationService")
+//@WebService(
+//		serviceName="BrokerService",
+//		targetNamespace="http://core.service/",
+//		portName="BrokerServicePort"
+//)
 //@SOAPBinding(style = Style.DOCUMENT, use=Use.LITERAL)
 
 public class AFQService extends AbstractQuotationService implements QuotationService {
@@ -44,69 +47,86 @@ public class AFQService extends AbstractQuotationService implements QuotationSer
 	
 	private static UDDIClerk clerk = null;
 
-	public AFQService() {
-		// Step.1 Begin
-    	// create a UDDIClerk object
-		try {
-			UDDIClient uddiClient = new UDDIClient("META-INF/uddi.xml");
-			clerk = uddiClient.getClerk("default");
-			if (clerk == null)
-				throw new Exception("the clerk wasn't found, check the config file!");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		//Step.1 Finish
-	}
+//	public AFQService() {
+//		// Step.1 Begin
+//    	// create a UDDIClerk object
+//		try {
+//			UDDIClient uddiClient = new UDDIClient("META-INF/uddi.xml");
+//			clerk = uddiClient.getClerk("default");
+//			if (clerk == null)
+//				throw new Exception("the clerk wasn't found, check the config file!");
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		//Step.1 Finish
+//	}
 	
-	public UDDIClerk getClerk() {
-		return AFQService.clerk;
-	}
+//	public void createUDDIClerk() {
+//		// Step.1 Begin
+//    	// create a UDDIClerk object
+//		try {
+//			UDDIClient uddiClient = new UDDIClient("META-INF/uddi.xml");
+//			clerk = uddiClient.getClerk("default");
+//			if (clerk == null)
+//				throw new Exception("the clerk wasn't found, check the config file!");
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		//Step.1 Finish
+//		
+//		
+//		Endpoint.publish(AFQAddress, new AFQService());
+//	}
 	
-	public boolean checkService() throws Exception {
-		UDDISecurityPortType security = null;
-		UDDIInquiryPortType inquiry = null;
-		
-		try {
-			UDDIClient client = new UDDIClient("META-INF/simple-browse-uddi.xml");
-
-			Transport transport = client.getTransport("default");
-
-			security = transport.getUDDISecurityService();
-			inquiry = transport.getUDDIInquiryService();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		String token = WebServices.WebServicesClientHelper.getAuthKey(security, "uddi", "uddi");
-	    BusinessList findBusiness = WebServices.WebServicesClientHelper.partialBusinessNameSearch(inquiry, token,
-	              "AFQ" + UDDIConstants.WILDCARD);
-	    
-		return (findBusiness.getBusinessInfos() == null);
-	}
+//	public UDDIClerk getClerk() {
+//		return AFQService.clerk;
+//	}
+//	
+//	public boolean checkService() throws Exception {
+//		UDDISecurityPortType security = null;
+//		UDDIInquiryPortType inquiry = null;
+//		
+//		try {
+//			UDDIClient client = new UDDIClient("META-INF/simple-browse-uddi.xml");
+//
+//			Transport transport = client.getTransport("default");
+//
+//			security = transport.getUDDISecurityService();
+//			inquiry = transport.getUDDIInquiryService();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		
+//		String token = WebServices.WebServicesClientHelper.getAuthKey(security, "uddi", "uddi");
+//	    BusinessList findBusiness = WebServices.WebServicesClientHelper.partialBusinessNameSearch(inquiry, token,
+//	              "AFQ" + UDDIConstants.WILDCARD);
+//	    
+//		return (findBusiness.getBusinessInfos() == null);
+//	}
 	
-	// Step.4 Begin
-	// publish the service to jUDDI
-	public void publish(UDDIClerk clerk) {
-		try {
-			String myBusKey = WebServices.WebServicesHelper.createBusiness("AFQService", clerk);
-
-			BusinessService myService = WebServices.WebServicesHelper.createWSDLService("AFQService", myBusKey, AFQAddress);
-			BusinessService svc = clerk.register(myService);
-			if (svc == null) {
-				System.out.println("Save failed!");
-				System.exit(1);
-			}
-
-			String myServKey = svc.getServiceKey();
-			System.out.println("myService key:  " + myServKey);
-			
-			clerk.discardAuthToken();
-			System.out.println("AFQ Business Registered!");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	// Step.4 Finish
+//	// Step.4 Begin
+//	// publish the service to jUDDI
+//	public void publish(UDDIClerk clerk) {
+//		try {
+//			String myBusKey = WebServices.WebServicesHelper.createBusiness("AFQService", clerk);
+//
+//			BusinessService myService = WebServices.WebServicesHelper.createWSDLService("AFQService", myBusKey, AFQAddress);
+//			BusinessService svc = clerk.register(myService);
+//			if (svc == null) {
+//				System.out.println("Save failed!");
+//				System.exit(1);
+//			}
+//
+//			String myServKey = svc.getServiceKey();
+//			System.out.println("myService key:  " + myServKey);
+//			
+//			clerk.discardAuthToken();
+//			System.out.println("AFQ Business Registered!");
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//	}
+//	// Step.4 Finish
 	
 	
 	// All references are to be prefixed with an AF (e.g. AF001000)
